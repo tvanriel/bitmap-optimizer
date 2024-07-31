@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"os"
 
-	optimizer "github.com/tvanriel/bitmap-optimizer"
+	bitmapoptimizer "github.com/tvanriel/bitmap-optimizer"
 
 	_ "golang.org/x/image/bmp"
 	_ "image/gif"
@@ -19,11 +19,15 @@ var (
 	filename    string
 	outname     string
 	packagename string
+  strat string
+  buckets int
 )
 
 func main() {
 	flag.StringVar(&filename, "input-file", "-", "Image file to optimize (use - for stdin)")
 	flag.StringVar(&outname, "output-file", "-", "Go file to output (use - for stdout)")
+	flag.IntVar(&buckets, "buckets", 16, "Amount of buckets (if strategy supports it)")
+	flag.StringVar(&strat, "strat", "edgeDetect", "Strategy to use [edgeDetect, perColour]")
 	flag.StringVar(&packagename, "package", "main", "package name for Go file")
 	flag.Parse()
 
@@ -56,7 +60,17 @@ func main() {
 		slog.Error("decode image", "err", err)
 		return
 	}
-  err = optimizer.Optimize(img, output, packagename)
+  var Strategy bitmapoptimizer.Strategy
+  switch strat {
+  case "perColour":
+    Strategy = &bitmapoptimizer.PerColourStrategy{}
+  case "edgeDetect":
+    Strategy = &bitmapoptimizer.EdgeDetectStrategy{Buckets: buckets}
+  default:
+    slog.Error("undefined strategy", "stragegy", strat)
+}
+
+  err = bitmapoptimizer.Optimize(img, Strategy, output, packagename)
   if err != nil {
     slog.Error("optimize", "err", err)
   }
