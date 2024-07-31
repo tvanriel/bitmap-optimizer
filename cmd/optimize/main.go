@@ -19,8 +19,8 @@ var (
 	filename    string
 	outname     string
 	packagename string
-  strat string
-  buckets int
+	strat       string
+	buckets     int
 )
 
 func main() {
@@ -60,18 +60,18 @@ func main() {
 		slog.Error("decode image", "err", err)
 		return
 	}
-  var Strategy bitmapoptimizer.Strategy
-  switch strat {
-  case "perColour":
-    Strategy = &bitmapoptimizer.PerColourStrategy{}
-  case "edgeDetect":
-    Strategy = &bitmapoptimizer.EdgeDetectStrategy{Buckets: buckets}
-  default:
-    slog.Error("undefined strategy", "stragegy", strat)
-}
+	var Strategy bitmapoptimizer.Strategy
+	switch strat {
+	case "perColour":
+		Strategy = &bitmapoptimizer.PerColourStrategy{}
+	case "edgeDetect":
+		Strategy = &bitmapoptimizer.EdgeDetectStrategy{Buckets: buckets}
+	default:
+		slog.Error("undefined strategy", "stragegy", strat)
+	}
 
-  err = bitmapoptimizer.Optimize(img, Strategy, output, packagename)
-  if err != nil {
-    slog.Error("optimize", "err", err)
-  }
+	err = bitmapoptimizer.Optimize(img, Strategy, output, packagename)
+	if err != nil {
+		slog.Error("optimize", "err", err)
+	}
 }
